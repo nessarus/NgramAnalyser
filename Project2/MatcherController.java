@@ -40,7 +40,7 @@ public class MatcherController {
             "Error : arraylist cannot be empty");}
         if(k <= 0){ throw new IllegalArgumentException(
             "Error : error your integer cannot be zero or less than zero");}
-            
+         
         this.trainingDataList = trainingDataList;
         this.k = k;
         this.testData = testData;

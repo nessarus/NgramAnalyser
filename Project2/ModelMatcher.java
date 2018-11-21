@@ -113,7 +113,6 @@ public class ModelMatcher
             s += "      " + i + "              " + getLogLikelihood(i) + "\n";
         }
         s += "Average log likelihood " + getAverageLogLikelihood();
-        System.out.println(s);
         return s;
     }
 
