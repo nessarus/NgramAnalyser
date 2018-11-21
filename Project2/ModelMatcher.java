@@ -18,6 +18,8 @@ public class ModelMatcher
     private HashMap<String,Double> logLikelihoodMap;
     /** summary statistic for this setting */
     private double averageLogLikelihood;  
+    /** given markov model */
+    private MarkovModel model;
 
     /**
      * Constructor to initialise the fields for the log likelihood map for 
@@ -25,9 +27,15 @@ public class ModelMatcher
      * the average log likelihood summary statistic
      * @param MarkovModel model a given Markov model object
      * @param String teststring
+     * @throws IllegalArgumentException if the input fields are unsuitable.
      */
     public ModelMatcher(MarkovModel model, String testString)
     {
+        if(testString == null){throw new IllegalArgumentException("Error : input string cannot be null");}
+        if(testString.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}
+        if(model == null){throw new IllegalArgumentException("Error : model cannot be null");}
+        this.model = model;
+        
         logLikelihoodMap = new HashMap<>();
         NgramAnalyser testA = new NgramAnalyser(model.getK()+1,testString);
         for(String i : testA.getDistinctNgrams()){
@@ -38,7 +46,7 @@ public class ModelMatcher
 
         averageLogLikelihood = averageLogLikelihood(logLikelihoodMap,
             testA.getNgramCount());
-    }
+        }
 
     /** Helper method that calculates the average log likelihood statistic
      * given a HashMap of strings and their Laplace probabilities
@@ -64,6 +72,8 @@ public class ModelMatcher
     private double totalLogLikelihood(HashMap<String,Double> logs)
     {
         double sum = 0;
+        if(logs == null){return sum;}
+
         for(double i : logs.values()){
             sum += i;
         }
@@ -85,7 +95,9 @@ public class ModelMatcher
      */
     public double getLogLikelihood(String ngram) 
     {
-        return (logLikelihoodMap.get(ngram));
+        if(ngram == null){return 0.0;}
+        if(ngram.isEmpty()){ return 0.0;}
+        return logLikelihoodMap.getOrDefault(ngram, 0.0);
     }
 
     /**

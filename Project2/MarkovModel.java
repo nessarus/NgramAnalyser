@@ -10,10 +10,12 @@ public class MarkovModel
 
     /** Markov model order parameter */
     int k; 
+    /** Input String */
+    String s;
     /** ngram model of order k */
     NgramAnalyser ngram; 
     /** ngram model of order k+1 */
-    NgramAnalyser n1gram; 
+    NgramAnalyser n1gram;
 
     /**
      * Construct an order-k Markov model from string s
@@ -23,11 +25,15 @@ public class MarkovModel
      */
     public MarkovModel(int k, String s) 
     {
-        if(s == null){throw new IllegalArgumentException("Error : input string cannot be null");}
-        if(s.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}        
-        if(k <= 0){ throw new IllegalArgumentException("Error : ngram size cannot be zero or less than zero");}
-        if(k+1 > s.length()){throw new IllegalArgumentException("Error: your ngram cannot be larger than your input string");}  
-        
+        if(s == null){throw new IllegalArgumentException(
+            "Error : input string cannot be null");}
+        if(s.isEmpty()){ throw new IllegalArgumentException(
+            "Error : input string cannot be empty");}        
+        if(k <= 0){ throw new IllegalArgumentException(
+            "Error : ngram size cannot be zero or less than zero");}
+        if(k+1 > s.length()){throw new IllegalArgumentException(
+            "Error: your ngram cannot be larger than your input string");}  
+        this.s = s;
         this.k = k;
         ngram = new NgramAnalyser(k, s);
         n1gram = new NgramAnalyser(k+1, s);
@@ -51,7 +57,8 @@ public class MarkovModel
         if(sequence == null){return (double) 0;}
         if(sequence.isEmpty()){return (double) 0;}
         
-        int aa = ngram.getNgramFrequency(sequence.substring(0,sequence.length()-1));
+        String subSequence = sequence.substring(0,sequence.length()-1);
+        int aa = ngram.getNgramFrequency(subSequence);
         if(aa == 0) {return (double) 0;}
         int aab = n1gram.getNgramFrequency(sequence);
         return (double) aab/aa;
@@ -66,7 +73,8 @@ public class MarkovModel
         if(sequence == null){return (double) 0;}
         if(sequence.isEmpty()){return (double) 0;}
         
-        int aa = ngram.getNgramFrequency(sequence.substring(0,sequence.length()-1));
+        String subSequence = sequence.substring(0,sequence.length()-1);
+        int aa = ngram.getNgramFrequency(subSequence);
         if((aa+ngram.getAlphabetSize()) == 0) {return (double) 0;}
         int aab = n1gram.getNgramFrequency(sequence);
         return (double) (aab+1)/(aa+ngram.getAlphabetSize());

@@ -43,10 +43,14 @@ public class NgramAnalyser
      */
     public NgramAnalyser(int n, String inp) 
     { 
-        if(inp == null){throw new IllegalArgumentException("Error : input string cannot be null");}
-        if(inp.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}        
-        if(n <= 0){ throw new IllegalArgumentException("Error : ngram size cannot be zero or less than zero");}
-        if(n > inp.length()){throw new IllegalArgumentException("Error: your ngram cannot be larger than your input string");}
+        if(inp == null){throw new IllegalArgumentException(
+            "Error : input string cannot be null");}
+        if(inp.isEmpty()){ throw new IllegalArgumentException(
+            "Error : input string cannot be empty");}        
+        if(n <= 0){ throw new IllegalArgumentException(
+            "Error : ngram size cannot be zero or less than zero");}
+        if(n > inp.length()){throw new IllegalArgumentException(
+            "Error: your ngram cannot be larger than your input string");}
        
         ngram = new HashMap<>();
         ngramSize = n;
