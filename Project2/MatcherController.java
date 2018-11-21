@@ -7,8 +7,8 @@ import java.io.*;
 /** Create and manipulate Markov models and model matchers for lists of training data 
  * a test data String and generate output from it for convenient display.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Joshua Ng (20163079) 
+ * @version 23/5/2017
  *
  */
 public class MatcherController {
@@ -32,7 +32,8 @@ public class MatcherController {
      */
     public MatcherController(int k, ArrayList<String> trainingDataList, String testData) 
     {
-      //TODO
+        this.k = k;
+        
     }
 
  

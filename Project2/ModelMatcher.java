@@ -96,9 +96,9 @@ public class ModelMatcher
     public String toString() 
     {
         String s = "averageLogLikelihood\n";
-        s += "Character  log10 of laplace estimate\n";
+        s += "Context+Character  log10 of laplace estimate\n";
         for(String i : logLikelihoodMap.keySet()) {
-            s += i + "       " + getLogLikelihood(i) + "\n";
+            s += "      " + i + "              " + getLogLikelihood(i) + "\n";
         }
         s += "Average log likelihood " + getAverageLogLikelihood();
         System.out.println(s);
