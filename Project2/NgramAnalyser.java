@@ -15,7 +15,7 @@ import java.util.Arrays;
  * a sequence of contiguous characters from the start of the string.
  * e.g. "abbc" includes "bca" and "cab" in its 3-grams
  * 
- * @author Joshua Ng, Mohamed Yusuf
+ * @author Joshua Ng (20163079), Mohamed Yusuf (22273364)
  * @version 16/5/2017
  */
 public class NgramAnalyser
@@ -29,6 +29,7 @@ public class NgramAnalyser
     /** n-gram size for this object (new field) */
     private int ngramSize;
     
+    /** number of ngram counts (not requiring them to be distinct) */
     private int ngramCount;
 
     /** 
@@ -38,34 +39,35 @@ public class NgramAnalyser
      * e.g. "abbbbc" includes "bca" and "cab" in its 3-grams
      * @param int n size of n-grams to create
      * @param String inp input string to be modelled
+     * @throws IllegalArgumentException if the input fields are unsuitable.
      */
     public NgramAnalyser(int n, String inp) 
-    { if(inp.equals(null)){throw new IllegalArgumentException("Error : input string cannot be null");}
+    { 
+        if(inp == null){throw new IllegalArgumentException("Error : input string cannot be null");}
+        if(inp.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}        
         if(n <= 0){ throw new IllegalArgumentException("Error : ngram size cannot be zero or less than zero");}
-        if(inp.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}
-        if(n  > inp.length()){throw new IllegalArgumentException("Error: your ngram cannot be larget than your input string");}
-        
+        if(n > inp.length()){throw new IllegalArgumentException("Error: your ngram cannot be larger than your input string");}
+       
         ngram = new HashMap<>();
-        char[] inp_array = inp.toCharArray();
         ngramSize = n;
+        
+        char[] inp_array = inp.toCharArray();
         ngramCount = inp_array.length;
         
-        buildHashGram(ngram, inp_array, n);
-        
-        for(String i : getDistinctNgrams()) {
-            alphabetSize += ngram.get(i);
-        }
-
-    }
-
-    private void buildHashGram(HashMap<String,Integer> hashgram, char[] inp, int n) {
-        for(int i=0; i < hashgram.size(); i++) {
-            String gram = createGram(inp, i, n);
+        for(int i=0; i < ngramCount; i++) {
+            String gram = createGram(inp_array, i, n);
             int freq = getNgramFrequency(gram) + 1;
-            hashgram.put(gram, freq);
+            ngram.put(gram, freq);
         }
-    }
+        
+        HashSet<Character> alphabet = new HashSet<>();
+        for(char c : inp_array) {
+            alphabet.add(c);
+        }
+        alphabetSize = alphabet.size();
 
+    }
+    
     /** 
      * Analyses the input text for n-grams of size 1.
      */
@@ -73,7 +75,7 @@ public class NgramAnalyser
     {
         this(1,inp);
     }
-
+    
     /**
      * Creates n-gram string from a char array at p index. 
      * n-grams at the end of the string wrap to the front.
@@ -129,19 +131,22 @@ public class NgramAnalyser
      * @return The frequency with which the n-gram appears.
      */
     public int getNgramFrequency(String ngram) {
-        if(!this.ngram.containsKey(ngram)) {
-            return 0;
-        }
-        else {
-            return this.ngram.get(ngram);
-        }
+        return this.ngram.getOrDefault(ngram, 0);
     }
-private String[] sortSet(Set<String> un){
-    Set<String> unOrder = un;
- String[] order = unOrder.toArray(new String[unOrder.size()]);
- Arrays.sort(order);
- return order;
-}
+
+    /**
+     * Sorts an unorder set to and return a ordered String array.
+     * 
+     * @param un The Set of unordered strings.
+     * @return An ordered string array.
+     */    
+    private String[] sortSet(Set<String> un){
+        Set<String> unOrder = un;
+        String[] order = unOrder.toArray(new String[unOrder.size()]);
+        Arrays.sort(order);
+        return order;
+    }
+
     /**
      * Generate a summary of the ngrams for this object.
      * @return a string representation of the n-grams in the input text 
@@ -150,13 +155,12 @@ private String[] sortSet(Set<String> un){
      */
     public String toString()
     {
-       String dummy = "" + getDistinctNgramCount();
-       String[] order = sortSet(getDistinctNgrams());
-       for(String m : order){
-        dummy += "/n" + m + " " + ngram.get(m);
-        
+        String summary = "" + ngramSize;
+        String[] order = sortSet(getDistinctNgrams());
+        for(String m : order){
+            summary += "\n" + m + " " + ngram.get(m);
         }
-        return dummy;
+        return summary;
     }
 
 }
