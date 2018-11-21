@@ -15,7 +15,7 @@ import java.util.Arrays;
  * a sequence of contiguous characters from the start of the string.
  * e.g. "abbc" includes "bca" and "cab" in its 3-grams
  * 
- * @author Joshua Ng 
+ * @author Joshua Ng, Mohamed Yusuf
  * @version 16/5/2017
  */
 public class NgramAnalyser
@@ -28,6 +28,8 @@ public class NgramAnalyser
 
     /** n-gram size for this object (new field) */
     private int ngramSize;
+    
+    private int ngramCount;
 
     /** 
      * Analyse the frequency with which distinct n-grams, of length n,
@@ -38,30 +40,32 @@ public class NgramAnalyser
      * @param String inp input string to be modelled
      */
     public NgramAnalyser(int n, String inp) 
-    { 
+    { if(inp.equals(null)){throw new IllegalArgumentException("Error : input string cannot be null");}
+        if(n <= 0){ throw new IllegalArgumentException("Error : ngram size cannot be zero or less than zero");}
+        if(inp.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}
+        if(n  > inp.length()){throw new IllegalArgumentException("Error: your ngram cannot be larget than your input string");}
+        
         ngram = new HashMap<>();
         char[] inp_array = inp.toCharArray();
-        ngramSize = inp_array.length;
+        ngramSize = n;
+        ngramCount = inp_array.length;
         
         buildHashGram(ngram, inp_array, n);
         
-        if(n == 1) {
-            alphabetSize = getDistinctNgramCount();
-        }else {
-            HashMap<String, Integer> alphaGram = new HashMap<>();
-            buildHashGram(alphaGram, inp_array, 1);
-            alphabetSize = alphaGram.size();
+        for(String i : getDistinctNgrams()) {
+            alphabetSize += ngram.get(i);
         }
+
     }
-    
-    public void buildHashGram(HashMap<String,Integer> hashgram, char[] inp, int n) {
-        for(int i=0; i < hashgram.length; i++) {
+
+    private void buildHashGram(HashMap<String,Integer> hashgram, char[] inp, int n) {
+        for(int i=0; i < hashgram.size(); i++) {
             String gram = createGram(inp, i, n);
             int freq = getNgramFrequency(gram) + 1;
             hashgram.put(gram, freq);
         }
     }
-    
+
     /** 
      * Analyses the input text for n-grams of size 1.
      */
@@ -69,8 +73,8 @@ public class NgramAnalyser
     {
         this(1,inp);
     }
-    
-     /**
+
+    /**
      * Creates n-gram string from a char array at p index. 
      * n-grams at the end of the string wrap to the front.
      * e.g. createGram({'a', 'b', 'c'}, 0, 2) returns 'ab'
@@ -78,7 +82,7 @@ public class NgramAnalyser
      * @param int p index position of n-gram
      * @param int n size of gram.
      */
-    public String createGram(char[] inp, int p, int n)
+    private String createGram(char[] inp, int p, int n)
     {
         char[] gram = new char[n];
         for(int i=0; i<n; i++) {
@@ -107,8 +111,7 @@ public class NgramAnalyser
      *         in the input string.
      */
     public Set<String> getDistinctNgrams() {
-        //TODO replace this line with your code
-        return null;
+        return ngram.keySet();
     }
 
     /**
@@ -116,7 +119,7 @@ public class NgramAnalyser
      *         in the input text (not requiring them to be distinct)
      */
     public int getNgramCount() {
-        return -1;
+        return ngramCount;
     }
 
     /** Return the frequency with which a particular n-gram appears
@@ -133,7 +136,12 @@ public class NgramAnalyser
             return this.ngram.get(ngram);
         }
     }
-
+private String[] sortSet(Set<String> un){
+    Set<String> unOrder = un;
+ String[] order = unOrder.toArray(new String[unOrder.size()]);
+ Arrays.sort(order);
+ return order;
+}
     /**
      * Generate a summary of the ngrams for this object.
      * @return a string representation of the n-grams in the input text 
@@ -142,8 +150,13 @@ public class NgramAnalyser
      */
     public String toString()
     {
-        //TODO replace this line with your code
-        return null;
+       String dummy = "" + getDistinctNgramCount();
+       String[] order = sortSet(getDistinctNgrams());
+       for(String m : order){
+        dummy += "/n" + m + " " + ngram.get(m);
+        
+        }
+        return dummy;
     }
 
 }
