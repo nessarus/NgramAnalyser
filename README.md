@@ -1,4 +1,4 @@
-# N-gram-Analyser-Project
+# NgramAnalyser
 
 The N-gram-Analyser is a student project developed during the CITS1001 Object-oriented Programming and Software Engineering course in UWA during semester one of 2017. The project uses skeleton code provided as part of course matterial from the univesity. 
 
