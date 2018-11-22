@@ -8,4 +8,5 @@ Project 1: Address Book
   Manage an AddressBook of Person contacts
   
 Project 2: N-gram Analyser
-  This program analyses the frequency with which distinct n-grams, of length n, appear in an input string.
+  This program analyses the frequency with which distinct n-grams, of length n, appear in an input string. 
+  The program is a set of classes interacting with each other. For the uses cases see the ProjectTest class. 
