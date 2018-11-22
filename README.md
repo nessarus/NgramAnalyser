@@ -1,9 +1,10 @@
-# CITS1001-Java-Programming
-Object-oriented Programming and Software Engineering
+# N-gram-Analyser-Project
 
-These are my projects I developed during my Java Programming course in UWA during semester one, 2017.
+The N-gram-Analyser is a student project developed during the CITS1001 Object-oriented Programming and Software Engineering course in UWA during semester one of 2017. The project uses skeleton code provided as part of course matterial from the univesity. 
 
-Project 1: Address Book (alpha)
+In preparing for the project, a secondary project for an address book was also completed. This was also included in the repository.  
+
+Project 1: Address Book
   Manage an AddressBook of Person contacts
   
 Project 2: N-gram Analyser
