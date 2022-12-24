@@ -5,83 +5,112 @@ import java.util.Arrays;
 import java.lang.Math;
 
 /**
- * Report the average log likelihood of a test String occuring in a 
- * given Markov model and detail the calculated values behind this statistic.
+ * Report the average log likelihood of a test string occuring in a 
+ * given Markov model and detail the calculated values behind this 
+ * statistic.
  * 
  * @author Joshua Ng (20163079), Mohamed Yusuf (22273364) 
- * @version (20/5/17)
+ * @version 13/12/2022
  */
 public class ModelMatcher
 {
+    /** Log likelihoods for a teststring under a given model */
+    private HashMap<String, Double> logLikelihoodMap;
 
-    /** log likelihoods for a teststring under a given model */
-    private HashMap<String,Double> logLikelihoodMap;
-    /** summary statistic for this setting */
-    private double averageLogLikelihood;  
-    /** given markov model */
+    /** Summary statistic for this setting */
+    private double averageLogLikelihood;
+
+    /** Given markov model */
     private MarkovModel model;
+    
+    /** A summary of the ngrams */
+    private String summary;
 
     /**
-     * Constructor to initialise the fields for the log likelihood map for 
-     * a test string and a given Markov model and 
-     * the average log likelihood summary statistic
-     * @param MarkovModel model a given Markov model object
-     * @param String teststring
-     * @throws IllegalArgumentException if the input fields are unsuitable.
+     * Constructor.
+     * 
+     * @param   model   A given Markov model object.
+     * @param   input   The file text.
      */
-    public ModelMatcher(MarkovModel model, String testString)
+    public ModelMatcher(MarkovModel model, String input)
     {
-        if(testString == null){throw new IllegalArgumentException("Error : input string cannot be null");}
-        if(testString.isEmpty()){ throw new IllegalArgumentException("Error : input string cannot be empty");}
-        if(model == null){throw new IllegalArgumentException("Error : model cannot be null");}
+        validateInput(model, input);
+        logLikelihoodMap = new HashMap<>();
         this.model = model;
         
-        logLikelihoodMap = new HashMap<>();
-        NgramAnalyser testA = new NgramAnalyser(model.getK()+1,testString);
-        for(String i : testA.getDistinctNgrams()){
-            double estimate = Math.log10(model.laplaceEstimate(i));
-            estimate *= testA.getNgramFrequency(i);
-            logLikelihoodMap.put(i,estimate);
+        // Calculate average log likelihood.
+        var k1Analyser = new NgramAnalyser(model.getK() + 1, input);
+        double totalScore = 0;
+        
+        for(var entry : k1Analyser.getFrequencySet())
+        {
+            var k1gram = entry.getKey();
+            var k1frequency = entry.getValue();
+            
+            var markovScore = calculateMarkovScore(k1gram, k1frequency);
+            logLikelihoodMap.put(k1gram, markovScore);
+            totalScore += markovScore;
         }
-
-        averageLogLikelihood = averageLogLikelihood(logLikelihoodMap,
-            testA.getNgramCount());
-        }
-
-    /** Helper method that calculates the average log likelihood statistic
-     * given a HashMap of strings and their Laplace probabilities
-     * and the total number of ngrams in the model.
-     * 
-     * @param logs map of ngram strings and their log likelihood
-     * @param ngramCount int number of ngrams in the original test string
-     * @return average log likelihood: the total of loglikelihoods 
-     *    divided by the ngramCount
-     */
-    private double averageLogLikelihood(HashMap<String,Double> logs, int ngramCount)
-    {
-        return ((totalLogLikelihood(logs))/ngramCount);
-    }
-
-    /** Helper method to calculate the total log likelihood statistic
-     * given a HashMap of strings and their Laplace probabilities
-     * and the total number of ngrams in the model.
-     * 
-     * @param logs map of ngram strings and their log likelihood
-     * @return total log likelihood: the sum of loglikelihoods in logs 
-     */
-    private double totalLogLikelihood(HashMap<String,Double> logs)
-    {
-        double sum = 0;
-        if(logs == null){return sum;}
-
-        for(double i : logs.values()){
-            sum += i;
-        }
-        return sum;
+        
+        averageLogLikelihood = totalScore / k1Analyser.getNgramCount();
+        
+        summary = generateSummary();
     }
 
     /**
-     * @return the average log likelihood statistic
+     * Checks and validates given model and input string.
+     *
+     * @param model     The markov model.
+     * @param input     The given text input.
+     */
+    private void validateInput(MarkovModel model, String input)
+    {
+        String error = null;
+
+        if(input == null)
+        {
+            error = "Error : input string cannot be null";
+        }
+        else if(input.isEmpty())
+        { 
+            error = "Error : input string cannot be empty";
+        }
+        else if(model == null)
+        { 
+            error = "Error : model cannot be null";
+        }
+        
+        if (error != null)
+        {
+            throw new IllegalArgumentException(error);
+        }
+    }
+
+    /**
+     * Calculate markov laplace log score.
+     * 
+     * @param ngram         A string for the ngram.
+     * @param frequency     The frequency of the ngram. 
+     */
+    private double calculateMarkovScore(String ngram, int frequency)
+    {
+        // Markov calculation   ~ (n1frequency + 1)/(nfrequency + distinct);
+        var markovEstimate      = model.laplaceEstimate(ngram);
+
+        // Logarithmic probability changes range from [0, 1] to (-inf, 0].
+        var markovLog           = Math.log10(markovEstimate);
+
+        // High markov score means better predictions (zero being the highest). 
+        // High frequency sequences (grams) carry more weight.
+        var markovScore         = markovLog * frequency;
+
+        return markovScore;
+    }
+
+    /**
+     * Gets average log markov score of the give markov model.
+     * 
+     * @return the average log likelihood statistic.
      */
     public double getAverageLogLikelihood() 
     {
@@ -90,30 +119,49 @@ public class ModelMatcher
 
     /**
      * Returns the log likelihood value for a given ngram string.
-     * @param ngram A string for the ngram
-     * @return double probability value for the given ngram.
+     * 
+     * @param ngram     A string for the ngram
+     * @return          Probability value for the given ngram.
      */
     public double getLogLikelihood(String ngram) 
     {
-        if(ngram == null){return 0.0;}
-        if(ngram.isEmpty()){ return 0.0;}
         return logLikelihoodMap.getOrDefault(ngram, 0.0);
     }
 
     /**
-     * Make a String summarising the log likelihood map and its statistics
-     * @return String of ngrams and their loglikeihood differences between the models
-     * The likelihood table should be ordered from highest to lowest likelihood
+     * Generate a summary of the ngrams for this object.
+     * Lists the ngram and log likelihoods.
+     * Ordered from highest to lowest likelihood
+     * 
+     * @return A string summary of the ngrams.
+     */
+    private String generateSummary()
+    {
+        var summary = new ArrayList<String>();
+        summary.add("Summary of the log likelihoods of this model.");
+        summary.add("ngram\t\tlog likelihood");
+        
+        for(var entry : logLikelihoodMap.entrySet()) 
+        {
+            var ngram = entry.getKey();
+            var frequency = entry.getValue();
+            var line = String.format("%s\t\t%f", ngram, frequency);
+        }
+        
+        var line = "Average log likelihood: %f";
+        summary.add(String.format(line, averageLogLikelihood));
+        
+        return String.join("\n", summary);
+    }
+    
+    /**
+     * Returns a summary of the ngram log likelihood statistics. 
+     * 
+     * @return A string summary of log likelihood statistics.
      */
     public String toString() 
     {
-        String s = "averageLogLikelihood\n";
-        s += "Context+Character  log10 of laplace estimate\n";
-        for(String i : logLikelihoodMap.keySet()) {
-            s += "      " + i + "              " + getLogLikelihood(i) + "\n";
-        }
-        s += "Average log likelihood " + getAverageLogLikelihood();
-        return s;
+        return summary;
     }
 
 }

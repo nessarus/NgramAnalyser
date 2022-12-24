@@ -1,6 +1,6 @@
 # NgramAnalyser
 
-The N-gram Analyser is a student project developed during the CITS1001 Object-oriented Programming and Software Engineering course in University of Western Australia during semester one of 2017. The project uses skeleton code provided as part of course material from the univesity. 
+The N-gram Analyser is a student project developed during the CITS1001 Object-oriented Programming and Software Engineering course in University of Western Australia during semester one of 2017. The project uses skeleton code provided as part of course material from the university. 
 
 In preparing for the project, a secondary project for an address book was also completed. This was also included in the repository.  
 

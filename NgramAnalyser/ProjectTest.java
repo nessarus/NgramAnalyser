@@ -2,10 +2,7 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Collections;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * The test class ProjectTest for student test cases.
@@ -44,65 +41,114 @@ public class ProjectTest
     }
 
     //TODO add new test cases from here include brief documentation
-
+    
+    /**
+     * Tests the MarkovModel on validation of input.
+     */
     @Test(timeout=1000 , expected = IllegalArgumentException.class)
-    public void testSensibleToStringSize() {
-        MarkovModel m = new MarkovModel(2,"c");
-        MarkovModel k = new MarkovModel(2,null);
-        MarkovModel l = new MarkovModel(2,"");
+    public void testSensibleToStringSize() 
+    {
+        var m = new MarkovModel(2, "c");
+        var k = new MarkovModel(2, null);
+        var l = new MarkovModel(2, "");
+        var t = new MarkovModel(0, "asdfsd");
+        var s = new MarkovModel(-134, "asdfas");
     }
 
+    /**
+     * Tests the NgramAnalyser on its distinct ngrams.
+     */
     @Test(timeout=1000)
-    public void testGetDistinctNgrams() {
-        NgramAnalyser ngramAna1 = new NgramAnalyser(2, "123");
-        Set<String> s1 = ngramAna1.getDistinctNgrams();
+    public void testGetDistinctNgrams() 
+    {
+        // One gram
+        var analyser1 = new NgramAnalyser("aabcabaacaac");
+        var ngrams1 = analyser1.getDistinctNgrams();
+        assertEquals(ngrams1.contains("a"), true);
+        assertEquals(ngrams1.contains("b"), true);
+        assertEquals(ngrams1.contains("c"), true);
         
-        //Set<String> someSet = new HashSet<String>();
-        ArrayList<String> a1 = new ArrayList<String>(s1);
-        Collections.sort(a1);
+        // Bi gram
+        var analyser2 = new NgramAnalyser(2,"aabcabaacaac");
+        var ngrams2 = analyser2.getDistinctNgrams();
+        assertEquals(ngrams2.contains("aa"), true);
+        assertEquals(ngrams2.contains("ab"), true);
+        assertEquals(ngrams2.contains("ac"), true);
+        assertEquals(ngrams2.contains("ba"), true);
+        assertEquals(ngrams2.contains("bc"), true);
+        assertEquals(ngrams2.contains("ca"), true);
         
-        ArrayList<String> a2 = new ArrayList<String>();
-        a2.add("12");
-        a2.add("23");
-        a2.add("31");
-        assertEquals(a2, a1);
+        // Tri gram
+        var analyser3 = new NgramAnalyser(3, "aabcabaacaac");
+        var ngrams3 = analyser3.getDistinctNgrams();
+        assertEquals(ngrams3.contains("aab"), true);
+        assertEquals(ngrams3.contains("aac"), true);
+        assertEquals(ngrams3.contains("aba"), true);
+        assertEquals(ngrams3.contains("abc"), true);
+        assertEquals(ngrams3.contains("aca"), true);
+        assertEquals(ngrams3.contains("baa"), true);
+        assertEquals(ngrams3.contains("bca"), true);
+        assertEquals(ngrams3.contains("caa"), true);
+        assertEquals(ngrams3.contains("cab"), true);
     }
 
+    /**
+     * Tests the MarkovModel with a laplace estimate of last character 
+     * occuring given a sequence.
+     */
     @Test(timeout=1000)
-    public void testLaplaceExample() {
-        MarkovModel markovMo2 = new MarkovModel(2, "aabcabaacaac");
-        assertEquals(0.5000, markovMo2.laplaceEstimate("aac"), 0.0001);
-        assertEquals(0.1667, markovMo2.laplaceEstimate("aaa"), 0.0001);
-        assertEquals(0.3333, markovMo2.laplaceEstimate("aab"), 0.0001);
+    public void testLaplaceExample() 
+    {
+        var model = new MarkovModel(2, "aabcabaacaac");
+        assertEquals(0.5000, model.laplaceEstimate("aac"), 0.0001);
+        assertEquals(0.1667, model.laplaceEstimate("aaa"), 0.0001);
+        assertEquals(0.3333, model.laplaceEstimate("aab"), 0.0001);
     }
 
+    /**
+     * Tests the MarkovModel using a simple estimate of last character 
+     * occuring given a sequence.
+     */
     @Test(timeout=1000)
-    public void testSimpleExample() {
-      MarkovModel markovMo1 = new MarkovModel(2, "aabcabaacaac");
-        assertEquals(0.33333, markovMo1.simpleEstimate("aab"), 0.0001);
+    public void testSimpleExample() 
+    {
+        var markovMo1 = new MarkovModel(2, "aabcabaacaac");
+        assertEquals(0.3333, markovMo1.simpleEstimate("aab"), 0.0001);
     }
 
+    /**
+     * Test the ModelMatcher on the calculating the average log likelihood
+     * for the occurance of last character of a sequence.
+     */
     @Test
     public void testTask3example() 
     {
-        MarkovModel model = new MarkovModel(2, "aabcabaacaac");
-        ModelMatcher modelMat1 = new ModelMatcher(model, "aabbcaac");
-        assertEquals(-0.3848976, modelMat1.getAverageLogLikelihood(), 0.0001);
-        assertEquals(-0.30102999, modelMat1.getLogLikelihood("bca"), 0.0001);
+        var markov = new MarkovModel(2, "aabcabaacaac");
+        var matcher = new ModelMatcher(markov, "aabbcaac");
+        assertEquals(-0.3849, matcher.getAverageLogLikelihood(), 0.0001);
+        assertEquals(-0.3010, matcher.getLogLikelihood("bca"), 0.0001);
     }
 
+    /**
+     * Test the MatcherController get best match.
+     */
     @Test
     public void matchControllerTest()
     {
-        java.util.ArrayList<java.lang.String> arrayLis1 = new java.util.ArrayList<>();
-        arrayLis1.add("aaaaaaaaaaaaaaaaaacaaaaaaaaaacccaaaaaaaacaaaaaaaaaaaaaaaaaaaaaa");
-        arrayLis1.add("bbbbbbbbbbbbbbbbbbcbbbbcccbbbbbbbbbbbbbbbbbbbbbbbbbbcbbbbbbbbbb");
-        arrayLis1.add("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
-        arrayLis1.add("dddddddddddddddddddccddddddddddddddddcccdddddddddddcdddddddddd");
-        MatcherController matcherC1 = new MatcherController(2, arrayLis1, "ccc");
-        java.util.ArrayList<ModelMatcher> arrayLis2 = matcherC1.matcherList;
-        ModelMatcher modelMat1 = matcherC1.getBestMatch(arrayLis2);
-        assertEquals(arrayLis2.get(2), matcherC1.getBestMatch(arrayLis2));
+        String[] dataSet = 
+        {
+        "aaaaaaaaaaaaaaaaaacaaaaaaaaaacccaaaaaaaacaaaaaaaaaaaaaaaaaaaaaa",
+        "bbbbbbbbbbbbbbbbbbcbbbbcccbbbbbbbbbbbbbbbbbbbbbbbbbbcbbbbbbbbbb",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "dddddddddddddddddddccddddddddddddddddcccdddddddddddcdddddddddd"
+        };
+        String sequence = "ccc";
+        
+        var dataArray = new ArrayList<String>(Arrays.asList(dataSet));
+        var controller = new MatcherController(2, dataArray, sequence);
+        var bestMatch = controller.matcherList.get(2);
+        var controllerMatch = controller.getBestMatch();
+        assertEquals(bestMatch, controllerMatch);
     }
 
    
